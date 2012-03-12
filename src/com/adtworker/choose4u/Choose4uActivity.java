@@ -14,10 +14,12 @@ import org.andengine.entity.modifier.RotationModifier;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.CameraScene;
 import org.andengine.entity.scene.Scene;
-import org.andengine.entity.scene.Scene.IOnSceneTouchListener;
 import org.andengine.entity.sprite.Sprite;
+import org.andengine.entity.text.Text;
 import org.andengine.entity.util.FPSLogger;
 import org.andengine.input.touch.TouchEvent;
+import org.andengine.opengl.font.Font;
+import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
@@ -30,28 +32,32 @@ import org.andengine.ui.activity.SimpleLayoutGameActivity;
 import org.andengine.util.modifier.IModifier;
 import org.andengine.util.modifier.ease.EaseQuadInOut;
 
+import android.graphics.Color;
+import android.util.Log;
 import android.view.KeyEvent;
 
-public class Choose4uActivity extends SimpleLayoutGameActivity
-		implements
-			IOnSceneTouchListener {
+public class Choose4uActivity extends SimpleLayoutGameActivity {
 	// ===========================================================
 	// Constants
 	// ===========================================================
 
 	private static final int CAMERA_WIDTH = 480;
-	private static final int CAMERA_HEIGHT = 720;
+	private static final int CAMERA_HEIGHT = 640;
 	private static final String TAG = "Choose4u";
 	private final Random mRandom = new Random(System.currentTimeMillis());
 	private int mFromRotation = 0;
 	private int mToRotation;
 
+	private Text mText;
+	private Font mFont;
 	private Camera mCamera;
 	private Scene mScene;
 	private Scene mRotateScene;
 	private boolean bRotating = false;
+	private boolean bFirstClick = true;
 	private BitmapTextureAtlas mBitmapTextureAtlas;
 	private ITextureRegion mPausedTextureRegion;
+	private ITextureRegion mNextTextureRegion;
 	private CameraScene mPauseScene;
 
 	// ===========================================================
@@ -179,11 +185,19 @@ public class Choose4uActivity extends SimpleLayoutGameActivity
 
 	@Override
 	public void onCreateResources() {
+		this.mFont = FontFactory.createFromAsset(this.getFontManager(),
+				this.getTextureManager(), 512, 512, TextureOptions.BILINEAR,
+				this.getAssets(), "Plok.ttf", 32, true, Color.WHITE);
+		this.mFont.load();
+
 		this.mBitmapTextureAtlas = new BitmapTextureAtlas(
-				this.getTextureManager(), 256, 128, TextureOptions.BILINEAR);
+				this.getTextureManager(), 200, 150, TextureOptions.BILINEAR);
 		this.mPausedTextureRegion = BitmapTextureAtlasTextureRegionFactory
 				.createFromAsset(this.mBitmapTextureAtlas, this, "paused.png",
 						0, 0);
+		this.mNextTextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createFromAsset(this.mBitmapTextureAtlas, this, "next.png", 0,
+						50);
 		this.mBitmapTextureAtlas.load();
 	}
 
@@ -204,27 +218,65 @@ public class Choose4uActivity extends SimpleLayoutGameActivity
 		this.mPauseScene.setBackgroundEnabled(false);
 
 		/* Create a nice scene with some rectangles. */
-		mScene = new Scene();
-		mRotateScene = new Scene();
+		this.mScene = new Scene();
+		this.mRotateScene = new Scene();
+		this.mText = new Text(-100, -90, this.mFont, "A", 10,
+				this.getVertexBufferObjectManager());
 
 		final Entity rectangleGroup = new Entity(CAMERA_WIDTH / 2,
 				CAMERA_HEIGHT / 2);
 
 		rectangleGroup.attachChild(this.makeColoredRectangle(-180, -180, 1, 0,
 				0));
+		rectangleGroup.attachChild(mText);
+
 		rectangleGroup.attachChild(this.makeColoredRectangle(0, -180, 0, 1, 0));
 		rectangleGroup.attachChild(this.makeColoredRectangle(0, 0, 0, 0, 1));
 		rectangleGroup.attachChild(this.makeColoredRectangle(-180, 0, 1, 1, 0));
 
 		mRotateScene.attachChild(rectangleGroup);
-		mScene.setChildScene(mRotateScene);
 
-		/* TouchListener */
-		mScene.setOnSceneTouchListener(this);
+		final Sprite nextSprite = new Sprite(centerX
+				+ mNextTextureRegion.getWidth() / 2, CAMERA_HEIGHT
+				- mNextTextureRegion.getHeight(), this.mNextTextureRegion,
+				this.getVertexBufferObjectManager()) {
+
+			@Override
+			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent,
+					final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+				Log.v(TAG, "onAreaTouched()");
+
+				if (!bRotating) {
+
+					mToRotation = 7200 + mRandom.nextInt(8) * 90 + 45;
+
+					mRotateScene.getChild(0).registerEntityModifier(
+							new RotationModifier(10, mFromRotation,
+									mToRotation, pEntityModifierListener,
+									EaseQuadInOut.getInstance()));
+
+					if (bFirstClick) {
+						mRotateScene.getChild(1).registerEntityModifier(
+								new RotationModifier(2, 0, -90, EaseQuadInOut
+										.getInstance()));
+						bFirstClick = false;
+					}
+
+					mFromRotation = mToRotation - 7200;
+				}
+
+				return true;
+			}
+		};
+
+		this.mRotateScene.attachChild(nextSprite);
+		this.mRotateScene.registerTouchArea(nextSprite);
+		this.mRotateScene.setTouchAreaBindingOnActionDownEnabled(true);
+
+		mScene.setChildScene(mRotateScene);
 
 		return mScene;
 	}
-
 	private IEntityModifierListener pEntityModifierListener = new IEntityModifierListener() {
 		@Override
 		public void onModifierStarted(IModifier<IEntity> pModifier,
@@ -239,24 +291,6 @@ public class Choose4uActivity extends SimpleLayoutGameActivity
 		}
 	};
 
-	@Override
-	public boolean onSceneTouchEvent(final Scene pScene,
-			final TouchEvent pSceneTouchEvent) {
-		if (pSceneTouchEvent.isActionDown()) {
-			if (!bRotating) {
-
-				mToRotation = 7200 + mRandom.nextInt(8) * 45;
-
-				mRotateScene.getChild(0).registerEntityModifier(
-						new RotationModifier(10, mFromRotation, mToRotation,
-								pEntityModifierListener, EaseQuadInOut
-										.getInstance()));
-
-				mFromRotation = mToRotation - 7200;
-			}
-		}
-		return true;
-	}
 	@Override
 	public boolean onKeyDown(final int pKeyCode, final KeyEvent pEvent) {
 		if (pKeyCode == KeyEvent.KEYCODE_MENU
