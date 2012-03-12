@@ -26,13 +26,13 @@ import org.andengine.opengl.texture.region.TextureRegionFactory;
 import org.andengine.opengl.texture.render.RenderTexture;
 import org.andengine.opengl.util.GLState;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
-import org.andengine.ui.activity.SimpleBaseGameActivity;
+import org.andengine.ui.activity.SimpleLayoutGameActivity;
 import org.andengine.util.modifier.IModifier;
 import org.andengine.util.modifier.ease.EaseQuadInOut;
 
 import android.view.KeyEvent;
 
-public class Choose4uActivity extends SimpleBaseGameActivity
+public class Choose4uActivity extends SimpleLayoutGameActivity
 		implements
 			IOnSceneTouchListener {
 	// ===========================================================
@@ -71,6 +71,16 @@ public class Choose4uActivity extends SimpleBaseGameActivity
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================
+
+	@Override
+	protected int getLayoutID() {
+		return R.layout.main;
+	}
+
+	@Override
+	protected int getRenderSurfaceViewID() {
+		return R.id.rendersurfaceview;
+	}
 
 	@Override
 	public EngineOptions onCreateEngineOptions() {
@@ -234,7 +244,8 @@ public class Choose4uActivity extends SimpleBaseGameActivity
 			final TouchEvent pSceneTouchEvent) {
 		if (pSceneTouchEvent.isActionDown()) {
 			if (!bRotating) {
-				mToRotation = 7200 + mRandom.nextInt(360);
+
+				mToRotation = 7200 + mRandom.nextInt(8) * 45;
 
 				mRotateScene.getChild(0).registerEntityModifier(
 						new RotationModifier(10, mFromRotation, mToRotation,

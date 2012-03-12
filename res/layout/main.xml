@@ -1,43 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView  xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" >
-
-    <TextView
-        android:id="@+id/logLayout"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text=""/>
+    android:layout_height="fill_parent">
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
         android:orientation="vertical"
-        android:gravity="center"
-        >
+        android:layout_margin="2px"
+        android:layout_gravity="center"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
 
-        <SurfaceView
-            android:id="@+id/surface"
-            android:layout_width="150sp"
-            android:layout_height="150sp"
-            android:layout_marginTop="5dp" />
+        <TextView android:id="@+id/btn_get_involved"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:text="Choose For You"/>
 
         <LinearLayout
-            android:id="@+id/imgsLayout"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:id="@+id/imgView"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:contentDescription="@string/app_name"
-                android:scaleType="centerInside" />
-
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+            <org.andengine.opengl.view.RenderSurfaceView android:id="@+id/rendersurfaceview"
+                android:layout_width="360dp"
+                android:layout_height="540dp" />
         </LinearLayout>
+
+        <TextView android:id="@+id/btn_get_involved"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:text="Start"/>
+
 
     </LinearLayout>
 
-</FrameLayout>
+</ScrollView>
