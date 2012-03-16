@@ -2,7 +2,6 @@ package com.adtworker.choose4u;
 
 import java.util.Random;
 
-import org.andengine.engine.Engine;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.EngineOptions.ScreenOrientation;
@@ -11,7 +10,6 @@ import org.andengine.entity.Entity;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.IEntityModifier.IEntityModifierListener;
 import org.andengine.entity.modifier.RotationModifier;
-import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.CameraScene;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.sprite.Sprite;
@@ -24,16 +22,11 @@ import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.region.ITextureRegion;
-import org.andengine.opengl.texture.region.TextureRegionFactory;
-import org.andengine.opengl.texture.render.RenderTexture;
-import org.andengine.opengl.util.GLState;
-import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.ui.activity.SimpleLayoutGameActivity;
 import org.andengine.util.modifier.IModifier;
 import org.andengine.util.modifier.ease.EaseQuadInOut;
 
 import android.graphics.Color;
-import android.util.Log;
 import android.view.KeyEvent;
 
 public class Choose4uActivity extends SimpleLayoutGameActivity {
@@ -57,7 +50,8 @@ public class Choose4uActivity extends SimpleLayoutGameActivity {
 	private boolean bFirstClick = true;
 	private BitmapTextureAtlas mBitmapTextureAtlas;
 	private ITextureRegion mPausedTextureRegion;
-	private ITextureRegion mNextTextureRegion;
+	private ITextureRegion mButtonTextureRegion;
+	private ITextureRegion[] mRectagleTextureRegion = new ITextureRegion[4];
 	private CameraScene mPauseScene;
 
 	// ===========================================================
@@ -97,93 +91,6 @@ public class Choose4uActivity extends SimpleLayoutGameActivity {
 	}
 
 	@Override
-	public Engine onCreateEngine(EngineOptions pEngineOptions) {
-		return new Engine(pEngineOptions) {
-			private static final int RENDERTEXTURE_COUNT = 2;
-
-			private boolean mRenderTextureInitialized;
-
-			private final RenderTexture[] mRenderTextures = new RenderTexture[RENDERTEXTURE_COUNT];
-			private final Sprite[] mRenderTextureSprites = new Sprite[RENDERTEXTURE_COUNT];
-
-			private int mCurrentRenderTextureIndex = 0;
-
-			@Override
-			public void onDrawFrame(final GLState pGLState)
-					throws InterruptedException {
-				final boolean firstFrame = !this.mRenderTextureInitialized;
-
-				if (firstFrame) {
-					this.initRenderTextures(pGLState);
-					this.mRenderTextureInitialized = true;
-				}
-
-				final int surfaceWidth = this.mCamera.getSurfaceWidth();
-				final int surfaceHeight = this.mCamera.getSurfaceHeight();
-
-				final int currentRenderTextureIndex = this.mCurrentRenderTextureIndex;
-				final int otherRenderTextureIndex = (currentRenderTextureIndex + 1)
-						% RENDERTEXTURE_COUNT;
-
-				this.mRenderTextures[currentRenderTextureIndex].begin(pGLState,
-						false, true);
-				{
-					/* Draw current frame. */
-					super.onDrawFrame(pGLState);
-
-					/* Draw previous frame with reduced alpha. */
-					if (!firstFrame) {
-						if (Choose4uActivity.this.mMotionStreaking) {
-							this.mRenderTextureSprites[otherRenderTextureIndex]
-									.setAlpha(0.9f);
-							this.mRenderTextureSprites[otherRenderTextureIndex]
-									.onDraw(pGLState, this.mCamera);
-						}
-					}
-				}
-				this.mRenderTextures[currentRenderTextureIndex].end(pGLState);
-
-				/* Draw combined frame with full alpha. */
-				{
-					pGLState.pushProjectionGLMatrix();
-					pGLState.orthoProjectionGLMatrixf(0, surfaceWidth, 0,
-							surfaceHeight, -1, 1);
-					{
-						this.mRenderTextureSprites[otherRenderTextureIndex]
-								.setAlpha(1);
-						this.mRenderTextureSprites[otherRenderTextureIndex]
-								.onDraw(pGLState, this.mCamera);
-					}
-					pGLState.popProjectionGLMatrix();
-				}
-
-				/* Flip RenderTextures. */
-				this.mCurrentRenderTextureIndex = otherRenderTextureIndex;
-			}
-
-			private void initRenderTextures(final GLState pGLState) {
-				final int surfaceWidth = this.mCamera.getSurfaceWidth();
-				final int surfaceHeight = this.mCamera.getSurfaceHeight();
-
-				final VertexBufferObjectManager vertexBufferObjectManager = this
-						.getVertexBufferObjectManager();
-				for (int i = 0; i <= 1; i++) {
-					this.mRenderTextures[i] = new RenderTexture(
-							this.getTextureManager(), surfaceWidth,
-							surfaceHeight);
-					this.mRenderTextures[i].init(pGLState);
-
-					final ITextureRegion renderTextureATextureRegion = TextureRegionFactory
-							.extractFromTexture(this.mRenderTextures[i]);
-					this.mRenderTextureSprites[i] = new Sprite(0, 0,
-							renderTextureATextureRegion,
-							vertexBufferObjectManager);
-				}
-			}
-		};
-	}
-
-	@Override
 	public void onCreateResources() {
 		this.mFont = FontFactory.createFromAsset(this.getFontManager(),
 				this.getTextureManager(), 512, 512, TextureOptions.BILINEAR,
@@ -191,13 +98,26 @@ public class Choose4uActivity extends SimpleLayoutGameActivity {
 		this.mFont.load();
 
 		this.mBitmapTextureAtlas = new BitmapTextureAtlas(
-				this.getTextureManager(), 200, 150, TextureOptions.BILINEAR);
+				this.getTextureManager(), 200, 870, TextureOptions.BILINEAR);
 		this.mPausedTextureRegion = BitmapTextureAtlasTextureRegionFactory
 				.createFromAsset(this.mBitmapTextureAtlas, this, "paused.png",
 						0, 0);
-		this.mNextTextureRegion = BitmapTextureAtlasTextureRegionFactory
+		this.mButtonTextureRegion = BitmapTextureAtlasTextureRegionFactory
 				.createFromAsset(this.mBitmapTextureAtlas, this, "next.png", 0,
 						50);
+		this.mRectagleTextureRegion[0] = BitmapTextureAtlasTextureRegionFactory
+				.createFromAsset(this.mBitmapTextureAtlas, this, "red.png", 0,
+						150);
+		this.mRectagleTextureRegion[1] = BitmapTextureAtlasTextureRegionFactory
+				.createFromAsset(this.mBitmapTextureAtlas, this, "green.png",
+						0, 330);
+		this.mRectagleTextureRegion[2] = BitmapTextureAtlasTextureRegionFactory
+				.createFromAsset(this.mBitmapTextureAtlas, this, "blue.png", 0,
+						510);
+		this.mRectagleTextureRegion[3] = BitmapTextureAtlasTextureRegionFactory
+				.createFromAsset(this.mBitmapTextureAtlas, this, "yellow.png",
+						0, 690);
+
 		this.mBitmapTextureAtlas.load();
 	}
 
@@ -220,31 +140,25 @@ public class Choose4uActivity extends SimpleLayoutGameActivity {
 		/* Create a nice scene with some rectangles. */
 		this.mScene = new Scene();
 		this.mRotateScene = new Scene();
-		this.mText = new Text(-100, -90, this.mFont, "A", 10,
-				this.getVertexBufferObjectManager());
 
 		final Entity rectangleGroup = new Entity(CAMERA_WIDTH / 2,
 				CAMERA_HEIGHT / 2);
 
-		rectangleGroup.attachChild(this.makeColoredRectangle(-180, -180, 1, 0,
-				0));
-		rectangleGroup.attachChild(mText);
-
-		rectangleGroup.attachChild(this.makeColoredRectangle(0, -180, 0, 1, 0));
-		rectangleGroup.attachChild(this.makeColoredRectangle(0, 0, 0, 0, 1));
-		rectangleGroup.attachChild(this.makeColoredRectangle(-180, 0, 1, 1, 0));
+		addChoice(rectangleGroup, 0, -180, -180);
+		addChoice(rectangleGroup, 1, 0, -180);
+		addChoice(rectangleGroup, 2, 0, 0);
+		addChoice(rectangleGroup, 3, -180, 0);
 
 		mRotateScene.attachChild(rectangleGroup);
 
-		final Sprite nextSprite = new Sprite(centerX
-				+ mNextTextureRegion.getWidth() / 2, CAMERA_HEIGHT
-				- mNextTextureRegion.getHeight(), this.mNextTextureRegion,
+		final Sprite buttonSprite = new Sprite(centerX
+				+ mButtonTextureRegion.getWidth() / 2, CAMERA_HEIGHT
+				- mButtonTextureRegion.getHeight(), this.mButtonTextureRegion,
 				this.getVertexBufferObjectManager()) {
 
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent,
 					final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				Log.v(TAG, "onAreaTouched()");
 
 				if (!bRotating) {
 
@@ -269,11 +183,12 @@ public class Choose4uActivity extends SimpleLayoutGameActivity {
 			}
 		};
 
-		this.mRotateScene.attachChild(nextSprite);
-		this.mRotateScene.registerTouchArea(nextSprite);
+		this.mRotateScene.attachChild(buttonSprite);
+		this.mRotateScene.registerTouchArea(buttonSprite);
 		this.mRotateScene.setTouchAreaBindingOnActionDownEnabled(true);
 
 		mScene.setChildScene(mRotateScene);
+		// mScene.setTouchAreaBindingOnActionDownEnabled(true);
 
 		return mScene;
 	}
@@ -313,16 +228,28 @@ public class Choose4uActivity extends SimpleLayoutGameActivity {
 	// Methods
 	// ===========================================================
 
-	private Rectangle makeColoredRectangle(final float pX, final float pY,
-			final float pRed, final float pGreen, final float pBlue) {
-		final Rectangle coloredRect = new Rectangle(pX, pY, 180, 180,
-				this.getVertexBufferObjectManager());
-		coloredRect.setColor(pRed, pGreen, pBlue);
+	private void addChoice(Entity parent, int i, float x, float y) {
+		final Sprite sprite = new Sprite(x, y, this.mRectagleTextureRegion[i],
+				this.getVertexBufferObjectManager()) {
 
-		return coloredRect;
+			@Override
+			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent,
+					final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+				switch (pSceneTouchEvent.getAction()) {
+					case TouchEvent.ACTION_DOWN :
+						this.setScale(1.5f);
+						break;
+
+					case TouchEvent.ACTION_UP :
+						this.setScale(1.0f);
+						break;
+				}
+				return true;
+			}
+		};
+		parent.attachChild(sprite);
+		mRotateScene.registerTouchArea(sprite);
+
 	}
 
-	// ===========================================================
-	// Inner and Anonymous Classes
-	// ===========================================================
 }
