@@ -240,7 +240,7 @@ public class Choose4uActivity extends SimpleLayoutGameActivity {
 						this.setScale(1.5f);
 						break;
 
-					case TouchEvent.ACTION_UP :
+					default :
 						this.setScale(1.0f);
 						break;
 				}
