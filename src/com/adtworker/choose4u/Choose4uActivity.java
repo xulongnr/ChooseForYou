@@ -13,7 +13,6 @@ import org.andengine.entity.modifier.RotationModifier;
 import org.andengine.entity.scene.CameraScene;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.sprite.Sprite;
-import org.andengine.entity.text.Text;
 import org.andengine.entity.util.FPSLogger;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
@@ -22,26 +21,25 @@ import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.region.ITextureRegion;
-import org.andengine.ui.activity.SimpleLayoutGameActivity;
+import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.modifier.IModifier;
 import org.andengine.util.modifier.ease.EaseQuadInOut;
 
 import android.graphics.Color;
 import android.view.KeyEvent;
 
-public class Choose4uActivity extends SimpleLayoutGameActivity {
+public class Choose4uActivity extends SimpleBaseGameActivity {
 	// ===========================================================
 	// Constants
 	// ===========================================================
 
-	private static final int CAMERA_WIDTH = 480;
-	private static final int CAMERA_HEIGHT = 640;
+	private static final int CAMERA_WIDTH = 800;
+	private static final int CAMERA_HEIGHT = 1280;
 	private static final String TAG = "Choose4u";
 	private final Random mRandom = new Random(System.currentTimeMillis());
 	private int mFromRotation = 0;
 	private int mToRotation;
 
-	private Text mText;
 	private Font mFont;
 	private Camera mCamera;
 	private Scene mScene;
@@ -53,12 +51,11 @@ public class Choose4uActivity extends SimpleLayoutGameActivity {
 	private ITextureRegion mButtonTextureRegion;
 	private ITextureRegion[] mRectagleTextureRegion = new ITextureRegion[4];
 	private CameraScene mPauseScene;
+	private int mRectWidth;
 
 	// ===========================================================
 	// Fields
 	// ===========================================================
-
-	private boolean mMotionStreaking = true;
 
 	// ===========================================================
 	// Constructors
@@ -73,23 +70,12 @@ public class Choose4uActivity extends SimpleLayoutGameActivity {
 	// ===========================================================
 
 	@Override
-	protected int getLayoutID() {
-		return R.layout.main;
-	}
-
-	@Override
-	protected int getRenderSurfaceViewID() {
-		return R.id.rendersurfaceview;
-	}
-
-	@Override
 	public EngineOptions onCreateEngineOptions() {
 		mCamera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 
-		return new EngineOptions(true, ScreenOrientation.PORTRAIT_FIXED,
+		return new EngineOptions(true, ScreenOrientation.PORTRAIT_SENSOR,
 				new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), mCamera);
 	}
-
 	@Override
 	public void onCreateResources() {
 		this.mFont = FontFactory.createFromAsset(this.getFontManager(),
@@ -144,16 +130,20 @@ public class Choose4uActivity extends SimpleLayoutGameActivity {
 		final Entity rectangleGroup = new Entity(CAMERA_WIDTH / 2,
 				CAMERA_HEIGHT / 2);
 
-		addChoice(rectangleGroup, 0, -180, -180);
-		addChoice(rectangleGroup, 1, 0, -180);
+		mRectWidth = (int) (Math.min(CAMERA_WIDTH, CAMERA_HEIGHT) / 2 / Math
+				.sqrt(2));
+
+		addChoice(rectangleGroup, 0, -mRectWidth, -mRectWidth);
+		addChoice(rectangleGroup, 1, 0, -mRectWidth);
 		addChoice(rectangleGroup, 2, 0, 0);
-		addChoice(rectangleGroup, 3, -180, 0);
+		addChoice(rectangleGroup, 3, -mRectWidth, 0);
 
 		mRotateScene.attachChild(rectangleGroup);
 
-		final Sprite buttonSprite = new Sprite(centerX
-				+ mButtonTextureRegion.getWidth() / 2, CAMERA_HEIGHT
-				- mButtonTextureRegion.getHeight(), this.mButtonTextureRegion,
+		final Sprite buttonSprite = new Sprite(centerX,
+				(float) (centerY + mRectWidth * Math.sqrt(2)),
+				mButtonTextureRegion.getWidth() * 2,
+				mButtonTextureRegion.getHeight() * 2, mButtonTextureRegion,
 				this.getVertexBufferObjectManager()) {
 
 			@Override
@@ -229,7 +219,8 @@ public class Choose4uActivity extends SimpleLayoutGameActivity {
 	// ===========================================================
 
 	private void addChoice(Entity parent, int i, float x, float y) {
-		final Sprite sprite = new Sprite(x, y, this.mRectagleTextureRegion[i],
+		final Sprite sprite = new Sprite(x, y, mRectWidth, mRectWidth,
+				this.mRectagleTextureRegion[i],
 				this.getVertexBufferObjectManager()) {
 
 			@Override
@@ -237,11 +228,11 @@ public class Choose4uActivity extends SimpleLayoutGameActivity {
 					final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				switch (pSceneTouchEvent.getAction()) {
 					case TouchEvent.ACTION_DOWN :
-						this.setScale(1.5f);
+
 						break;
 
 					default :
-						this.setScale(1.0f);
+
 						break;
 				}
 				return true;
