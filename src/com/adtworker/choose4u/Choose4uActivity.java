@@ -1,5 +1,6 @@
 package com.adtworker.choose4u;
 
+import java.io.File;
 import java.util.Random;
 
 import org.andengine.engine.camera.Camera;
@@ -20,12 +21,16 @@ import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
+import org.andengine.opengl.texture.atlas.bitmap.source.FileBitmapTextureAtlasSource;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.modifier.IModifier;
 import org.andengine.util.modifier.ease.EaseQuadInOut;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.provider.MediaStore;
 import android.view.KeyEvent;
 
 public class Choose4uActivity extends SimpleBaseGameActivity {
@@ -33,7 +38,7 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 	// Constants
 	// ===========================================================
 
-	private static final int CAMERA_WIDTH = 800;
+	private static final int CAMERA_WIDTH = 720;
 	private static final int CAMERA_HEIGHT = 1280;
 	private static final String TAG = "Choose4u";
 	private final Random mRandom = new Random(System.currentTimeMillis());
@@ -45,13 +50,15 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 	private Scene mScene;
 	private Scene mRotateScene;
 	private boolean bRotating = false;
-	private boolean bFirstClick = true;
 	private BitmapTextureAtlas mBitmapTextureAtlas;
 	private ITextureRegion mPausedTextureRegion;
 	private ITextureRegion mButtonTextureRegion;
 	private ITextureRegion[] mRectagleTextureRegion = new ITextureRegion[4];
 	private CameraScene mPauseScene;
 	private int mRectWidth;
+
+	private static final int PHOTO_PICKED_WITH_DATA = 3021;
+	private static final int CAMERA_WITH_DATA = 3023;
 
 	// ===========================================================
 	// Fields
@@ -159,13 +166,6 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 									mToRotation, pEntityModifierListener,
 									EaseQuadInOut.getInstance()));
 
-					if (bFirstClick) {
-						mRotateScene.getChild(1).registerEntityModifier(
-								new RotationModifier(2, 0, -90, EaseQuadInOut
-										.getInstance()));
-						bFirstClick = false;
-					}
-
 					mFromRotation = mToRotation - 7200;
 				}
 
@@ -228,7 +228,9 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 					final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				switch (pSceneTouchEvent.getAction()) {
 					case TouchEvent.ACTION_DOWN :
-
+						Intent intent = new Intent(
+								MediaStore.ACTION_IMAGE_CAPTURE);
+						startActivityForResult(intent, CAMERA_WITH_DATA);
 						break;
 
 					default :
@@ -243,4 +245,53 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 
 	}
 
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (resultCode != RESULT_OK)
+			return;
+
+		switch (requestCode) {
+			case CAMERA_WITH_DATA :
+				final Bitmap photo = data.getParcelableExtra("data");
+				if (photo != null) {
+					doCropPhoto(photo);
+				}
+				break;
+
+			case PHOTO_PICKED_WITH_DATA :
+				Bitmap photo1 = data.getParcelableExtra("data");
+				if (photo1 != null) {
+
+					String fileName = "/mnt/sdcard/.adtwkr/red.png";
+					File resFile = new File(fileName);
+					FileBitmapTextureAtlasSource fileBitmapTextureAtlasSource = FileBitmapTextureAtlasSource
+							.create(resFile);
+					mRectagleTextureRegion[0] = BitmapTextureAtlasTextureRegionFactory
+							.createFromSource(mBitmapTextureAtlas,
+									fileBitmapTextureAtlasSource, 0, 150);
+					mBitmapTextureAtlas.load();
+				}
+				break;
+
+			default :
+
+		}
+	}
+	protected void doCropPhoto(Bitmap data) {
+		Intent intent = getCropImageIntent(data);
+		startActivityForResult(intent, PHOTO_PICKED_WITH_DATA);
+	}
+
+	public static Intent getCropImageIntent(Bitmap data) {
+		Intent intent = new Intent("com.android.camera.action.CROP");
+		intent.setType("image/*");
+		intent.putExtra("data", data);
+		intent.putExtra("crop", "true");
+		intent.putExtra("aspectX", 1);
+		intent.putExtra("aspectY", 1);
+		intent.putExtra("outputX", 180);
+		intent.putExtra("outputY", 180);
+		intent.putExtra("return-data", true);
+		return intent;
+	}
 }
