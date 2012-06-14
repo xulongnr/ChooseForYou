@@ -1,6 +1,7 @@
 package com.adtworker.choose4u;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Random;
 
 import org.andengine.engine.camera.Camera;
@@ -31,6 +32,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.KeyEvent;
 
 public class Choose4uActivity extends SimpleBaseGameActivity {
@@ -226,6 +228,9 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent,
 					final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+				Log.d(TAG, "onTouched: x=" + pTouchAreaLocalX + ", y="
+						+ pTouchAreaLocalY);
+
 				switch (pSceneTouchEvent.getAction()) {
 					case TouchEvent.ACTION_DOWN :
 						Intent intent = new Intent(
@@ -244,7 +249,6 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 		mRotateScene.registerTouchArea(sprite);
 
 	}
-
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (resultCode != RESULT_OK)
@@ -261,11 +265,22 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 			case PHOTO_PICKED_WITH_DATA :
 				Bitmap photo1 = data.getParcelableExtra("data");
 				if (photo1 != null) {
-
 					String fileName = "/mnt/sdcard/.adtwkr/red.png";
-					File resFile = new File(fileName);
+					File file = new File(fileName);
+					try {
+						if (!file.exists())
+							file.createNewFile();
+
+						FileOutputStream os = new FileOutputStream(file, false);
+						photo1.compress(Bitmap.CompressFormat.PNG, 100, os);
+						os.flush();
+						os.close();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
 					FileBitmapTextureAtlasSource fileBitmapTextureAtlasSource = FileBitmapTextureAtlasSource
-							.create(resFile);
+							.create(file);
 					mRectagleTextureRegion[0] = BitmapTextureAtlasTextureRegionFactory
 							.createFromSource(mBitmapTextureAtlas,
 									fileBitmapTextureAtlasSource, 0, 150);
