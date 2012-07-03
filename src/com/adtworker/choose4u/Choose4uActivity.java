@@ -31,7 +31,6 @@ import org.andengine.util.modifier.ease.EaseQuadInOut;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
 
@@ -40,7 +39,7 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 	// Constants
 	// ===========================================================
 
-	private static final int CAMERA_WIDTH = 720;
+	private static final int CAMERA_WIDTH = 800;
 	private static final int CAMERA_HEIGHT = 1280;
 	private static final String TAG = "Choose4u";
 	private final Random mRandom = new Random(System.currentTimeMillis());
@@ -61,6 +60,8 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 
 	private static final int PHOTO_PICKED_WITH_DATA = 3021;
 	private static final int CAMERA_WITH_DATA = 3023;
+
+	final String img_prefix = "/mnt/sdcard/.adtwkr/";
 
 	// ===========================================================
 	// Fields
@@ -100,19 +101,58 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 		this.mButtonTextureRegion = BitmapTextureAtlasTextureRegionFactory
 				.createFromAsset(this.mBitmapTextureAtlas, this, "next.png", 0,
 						50);
-		this.mRectagleTextureRegion[0] = BitmapTextureAtlasTextureRegionFactory
-				.createFromAsset(this.mBitmapTextureAtlas, this, "red.png", 0,
-						150);
-		this.mRectagleTextureRegion[1] = BitmapTextureAtlasTextureRegionFactory
-				.createFromAsset(this.mBitmapTextureAtlas, this, "green.png",
-						0, 330);
-		this.mRectagleTextureRegion[2] = BitmapTextureAtlasTextureRegionFactory
-				.createFromAsset(this.mBitmapTextureAtlas, this, "blue.png", 0,
-						510);
-		this.mRectagleTextureRegion[3] = BitmapTextureAtlasTextureRegionFactory
-				.createFromAsset(this.mBitmapTextureAtlas, this, "yellow.png",
-						0, 690);
 
+		File file = new File(img_prefix + "red.png");
+		if (file.exists()) {
+			FileBitmapTextureAtlasSource fileBitmapTextureAtlasSource = FileBitmapTextureAtlasSource
+					.create(file);
+			mRectagleTextureRegion[0] = BitmapTextureAtlasTextureRegionFactory
+					.createFromSource(mBitmapTextureAtlas,
+							fileBitmapTextureAtlasSource, 0, 150);
+		} else {
+			mRectagleTextureRegion[0] = BitmapTextureAtlasTextureRegionFactory
+					.createFromAsset(this.mBitmapTextureAtlas, this, "red.png",
+							0, 150);
+		}
+
+		file = new File(img_prefix + "green.png");
+		if (file.exists()) {
+			FileBitmapTextureAtlasSource fileBitmapTextureAtlasSource = FileBitmapTextureAtlasSource
+					.create(file);
+			mRectagleTextureRegion[1] = BitmapTextureAtlasTextureRegionFactory
+					.createFromSource(mBitmapTextureAtlas,
+							fileBitmapTextureAtlasSource, 0, 330);
+		} else {
+			mRectagleTextureRegion[1] = BitmapTextureAtlasTextureRegionFactory
+					.createFromAsset(this.mBitmapTextureAtlas, this,
+							"green.png", 0, 330);
+		}
+
+		file = new File(img_prefix + "blue.png");
+		if (file.exists()) {
+			FileBitmapTextureAtlasSource fileBitmapTextureAtlasSource = FileBitmapTextureAtlasSource
+					.create(file);
+			mRectagleTextureRegion[2] = BitmapTextureAtlasTextureRegionFactory
+					.createFromSource(mBitmapTextureAtlas,
+							fileBitmapTextureAtlasSource, 0, 510);
+		} else {
+			mRectagleTextureRegion[2] = BitmapTextureAtlasTextureRegionFactory
+					.createFromAsset(this.mBitmapTextureAtlas, this,
+							"blue.png", 0, 510);
+		}
+
+		file = new File(img_prefix + "yellow.png");
+		if (file.exists()) {
+			FileBitmapTextureAtlasSource fileBitmapTextureAtlasSource = FileBitmapTextureAtlasSource
+					.create(file);
+			mRectagleTextureRegion[3] = BitmapTextureAtlasTextureRegionFactory
+					.createFromSource(mBitmapTextureAtlas,
+							fileBitmapTextureAtlasSource, 0, 690);
+		} else {
+			mRectagleTextureRegion[3] = BitmapTextureAtlasTextureRegionFactory
+					.createFromAsset(this.mBitmapTextureAtlas, this,
+							"yellow.png", 0, 690);
+		}
 		this.mBitmapTextureAtlas.load();
 	}
 
@@ -144,6 +184,7 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 
 		addChoice(rectangleGroup, 0, -mRectWidth, -mRectWidth);
 		addChoice(rectangleGroup, 1, 0, -mRectWidth);
+
 		addChoice(rectangleGroup, 2, 0, 0);
 		addChoice(rectangleGroup, 3, -mRectWidth, 0);
 
@@ -233,9 +274,9 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 
 				switch (pSceneTouchEvent.getAction()) {
 					case TouchEvent.ACTION_DOWN :
-						Intent intent = new Intent(
-								MediaStore.ACTION_IMAGE_CAPTURE);
-						startActivityForResult(intent, CAMERA_WITH_DATA);
+						// Intent intent = new Intent(
+						// MediaStore.ACTION_IMAGE_CAPTURE);
+						// startActivityForResult(intent, CAMERA_WITH_DATA);
 						break;
 
 					default :
