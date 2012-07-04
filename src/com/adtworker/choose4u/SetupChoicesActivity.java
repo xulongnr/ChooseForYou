@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -49,7 +48,12 @@ public class SetupChoicesActivity extends Activity {
 
 		findViewById(R.id.btn_title).setOnClickListener(onClickFunc);
 		findViewById(R.id.btn_go).setOnClickListener(onClickFunc);
-		findViewById(R.id.btn_go).setBackgroundColor(Color.DKGRAY);
+		findViewById(R.id.btn_reset).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				reset();
+			}
+		});
 
 		DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
 		int width = displayMetrics.widthPixels;
@@ -86,8 +90,9 @@ public class SetupChoicesActivity extends Activity {
 			} else {
 				bitmap = BitmapFactory.decodeFile(img_prefix + imgstr[i]);
 			}
-			if (bitmap != null)
+			if (bitmap != null) {
 				img[i].setImageBitmap(bitmap);
+			}
 
 			img[i].setOnClickListener(new OnClickListener() {
 				@Override
@@ -233,5 +238,22 @@ public class SetupChoicesActivity extends Activity {
 		intent.putExtra("outputY", 180);
 		intent.putExtra("return-data", true);
 		return intent;
+	}
+
+	protected void reset() {
+		for (int i = 0; i < 4; i++) {
+			File file = new File(img_prefix + imgstr[i]);
+			if (file.exists())
+				file.delete();
+
+			Bitmap bitmap = null;
+			try {
+				bitmap = BitmapFactory
+						.decodeStream(getAssets().open(imgstr[i]));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			img[i].setImageBitmap(bitmap);
+		}
 	}
 }

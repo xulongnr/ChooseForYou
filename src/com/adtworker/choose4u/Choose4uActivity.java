@@ -28,12 +28,14 @@ import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.modifier.IModifier;
 import org.andengine.util.modifier.ease.EaseQuadInOut;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.KeyEvent;
 
+@SuppressLint("ParserError")
 public class Choose4uActivity extends SimpleBaseGameActivity {
 	// ===========================================================
 	// Constants
@@ -43,8 +45,10 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 	private static final int CAMERA_HEIGHT = 1280;
 	private static final String TAG = "Choose4u";
 	private final Random mRandom = new Random(System.currentTimeMillis());
-	private int mFromRotation = 0;
-	private int mToRotation;
+	private int mFromRotation1 = 0;
+	private int mFromRotation2 = 0;
+	private int mToRotation1;
+	private int mToRotation2;
 
 	private Font mFont;
 	private Camera mCamera;
@@ -94,13 +98,13 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 		this.mFont.load();
 
 		this.mBitmapTextureAtlas = new BitmapTextureAtlas(
-				this.getTextureManager(), 200, 870, TextureOptions.BILINEAR);
+				this.getTextureManager(), 200, 1000, TextureOptions.BILINEAR);
 		this.mPausedTextureRegion = BitmapTextureAtlasTextureRegionFactory
 				.createFromAsset(this.mBitmapTextureAtlas, this, "paused.png",
 						0, 0);
 		this.mButtonTextureRegion = BitmapTextureAtlasTextureRegionFactory
-				.createFromAsset(this.mBitmapTextureAtlas, this, "next.png", 0,
-						50);
+				.createFromAsset(this.mBitmapTextureAtlas, this,
+						"target_s.png", 0, 50);
 
 		File file = new File(img_prefix + "red.png");
 		if (file.exists()) {
@@ -108,11 +112,11 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 					.create(file);
 			mRectagleTextureRegion[0] = BitmapTextureAtlasTextureRegionFactory
 					.createFromSource(mBitmapTextureAtlas,
-							fileBitmapTextureAtlasSource, 0, 150);
+							fileBitmapTextureAtlasSource, 0, 250);
 		} else {
 			mRectagleTextureRegion[0] = BitmapTextureAtlasTextureRegionFactory
 					.createFromAsset(this.mBitmapTextureAtlas, this, "red.png",
-							0, 150);
+							0, 250);
 		}
 
 		file = new File(img_prefix + "green.png");
@@ -121,11 +125,11 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 					.create(file);
 			mRectagleTextureRegion[1] = BitmapTextureAtlasTextureRegionFactory
 					.createFromSource(mBitmapTextureAtlas,
-							fileBitmapTextureAtlasSource, 0, 330);
+							fileBitmapTextureAtlasSource, 0, 430);
 		} else {
 			mRectagleTextureRegion[1] = BitmapTextureAtlasTextureRegionFactory
 					.createFromAsset(this.mBitmapTextureAtlas, this,
-							"green.png", 0, 330);
+							"green.png", 0, 430);
 		}
 
 		file = new File(img_prefix + "blue.png");
@@ -134,11 +138,11 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 					.create(file);
 			mRectagleTextureRegion[2] = BitmapTextureAtlasTextureRegionFactory
 					.createFromSource(mBitmapTextureAtlas,
-							fileBitmapTextureAtlasSource, 0, 510);
+							fileBitmapTextureAtlasSource, 0, 610);
 		} else {
 			mRectagleTextureRegion[2] = BitmapTextureAtlasTextureRegionFactory
 					.createFromAsset(this.mBitmapTextureAtlas, this,
-							"blue.png", 0, 510);
+							"blue.png", 0, 610);
 		}
 
 		file = new File(img_prefix + "yellow.png");
@@ -147,15 +151,16 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 					.create(file);
 			mRectagleTextureRegion[3] = BitmapTextureAtlasTextureRegionFactory
 					.createFromSource(mBitmapTextureAtlas,
-							fileBitmapTextureAtlasSource, 0, 690);
+							fileBitmapTextureAtlasSource, 0, 790);
 		} else {
 			mRectagleTextureRegion[3] = BitmapTextureAtlasTextureRegionFactory
 					.createFromAsset(this.mBitmapTextureAtlas, this,
-							"yellow.png", 0, 690);
+							"yellow.png", 0, 790);
 		}
 		this.mBitmapTextureAtlas.load();
 	}
 
+	@SuppressLint("ParserError")
 	@Override
 	public Scene onCreateScene() {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
@@ -178,9 +183,11 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 
 		final Entity rectangleGroup = new Entity(CAMERA_WIDTH / 2,
 				CAMERA_HEIGHT / 2);
+		final Entity circleGroup = new Entity(CAMERA_WIDTH / 2,
+				CAMERA_HEIGHT / 2);
 
-		mRectWidth = (int) (Math.min(CAMERA_WIDTH, CAMERA_HEIGHT) / 2 / Math
-				.sqrt(2));
+		mRectWidth = Math.min(CAMERA_WIDTH, CAMERA_HEIGHT) / 2;
+		// / Math.sqrt(2)
 
 		addChoice(rectangleGroup, 0, -mRectWidth, -mRectWidth);
 		addChoice(rectangleGroup, 1, 0, -mRectWidth);
@@ -190,10 +197,12 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 
 		mRotateScene.attachChild(rectangleGroup);
 
-		final Sprite buttonSprite = new Sprite(centerX,
-				(float) (centerY + mRectWidth * Math.sqrt(2)),
-				mButtonTextureRegion.getWidth() * 2,
-				mButtonTextureRegion.getHeight() * 2, mButtonTextureRegion,
+		// centerX
+		// (float) (centerY + mRectWidth * Math.sqrt(2))
+		float width = mRectWidth - mButtonTextureRegion.getWidth() * 3 / 2;
+		final Sprite buttonSprite = new Sprite(width / 2, width / 2,
+				mButtonTextureRegion.getWidth() * 3 / 2,
+				mButtonTextureRegion.getHeight() * 3 / 2, mButtonTextureRegion,
 				this.getVertexBufferObjectManager()) {
 
 			@Override
@@ -202,21 +211,29 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 
 				if (!bRotating) {
 
-					mToRotation = 7200 + mRandom.nextInt(8) * 90 + 45;
+					mToRotation1 = -7200 - mRandom.nextInt(8) * 90;
+					mToRotation2 = 7200 + mRandom.nextInt(8) * 90;
 
 					mRotateScene.getChild(0).registerEntityModifier(
-							new RotationModifier(10, mFromRotation,
-									mToRotation, pEntityModifierListener,
+							new RotationModifier(10, mFromRotation1,
+									mToRotation1, pEntityModifierListener,
 									EaseQuadInOut.getInstance()));
 
-					mFromRotation = mToRotation - 7200;
+					mRotateScene.getChild(1).registerEntityModifier(
+							new RotationModifier(10, mFromRotation2,
+									mToRotation2, pEntityModifierListener,
+									EaseQuadInOut.getInstance()));
+
+					mFromRotation1 = mToRotation1 + 7200;
+					mFromRotation2 = mToRotation2 - 7200;
 				}
 
 				return true;
 			}
 		};
 
-		this.mRotateScene.attachChild(buttonSprite);
+		circleGroup.attachChild(buttonSprite);
+		this.mRotateScene.attachChild(circleGroup);
 		this.mRotateScene.registerTouchArea(buttonSprite);
 		this.mRotateScene.setTouchAreaBindingOnActionDownEnabled(true);
 
@@ -225,6 +242,7 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 
 		return mScene;
 	}
+
 	private IEntityModifierListener pEntityModifierListener = new IEntityModifierListener() {
 		@Override
 		public void onModifierStarted(IModifier<IEntity> pModifier,
@@ -287,7 +305,7 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 			}
 		};
 		parent.attachChild(sprite);
-		mRotateScene.registerTouchArea(sprite);
+		// mRotateScene.registerTouchArea(sprite);
 
 	}
 	@Override
