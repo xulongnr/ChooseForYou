@@ -1,7 +1,6 @@
 package com.adtworker.choose4u;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.Random;
 
 import org.andengine.engine.camera.Camera;
@@ -28,14 +27,10 @@ import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.modifier.IModifier;
 import org.andengine.util.modifier.ease.EaseQuadInOut;
 
-import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.KeyEvent;
 
-@SuppressLint("ParserError")
 public class Choose4uActivity extends SimpleBaseGameActivity {
 	// ===========================================================
 	// Constants
@@ -160,7 +155,6 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 		this.mBitmapTextureAtlas.load();
 	}
 
-	@SuppressLint("ParserError")
 	@Override
 	public Scene onCreateScene() {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
@@ -292,9 +286,7 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 
 				switch (pSceneTouchEvent.getAction()) {
 					case TouchEvent.ACTION_DOWN :
-						// Intent intent = new Intent(
-						// MediaStore.ACTION_IMAGE_CAPTURE);
-						// startActivityForResult(intent, CAMERA_WITH_DATA);
+
 						break;
 
 					default :
@@ -308,64 +300,5 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 		// mRotateScene.registerTouchArea(sprite);
 
 	}
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (resultCode != RESULT_OK)
-			return;
 
-		switch (requestCode) {
-			case CAMERA_WITH_DATA :
-				final Bitmap photo = data.getParcelableExtra("data");
-				if (photo != null) {
-					doCropPhoto(photo);
-				}
-				break;
-
-			case PHOTO_PICKED_WITH_DATA :
-				Bitmap photo1 = data.getParcelableExtra("data");
-				if (photo1 != null) {
-					String fileName = "/mnt/sdcard/.adtwkr/red.png";
-					File file = new File(fileName);
-					try {
-						if (!file.exists())
-							file.createNewFile();
-
-						FileOutputStream os = new FileOutputStream(file, false);
-						photo1.compress(Bitmap.CompressFormat.PNG, 100, os);
-						os.flush();
-						os.close();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-
-					FileBitmapTextureAtlasSource fileBitmapTextureAtlasSource = FileBitmapTextureAtlasSource
-							.create(file);
-					mRectagleTextureRegion[0] = BitmapTextureAtlasTextureRegionFactory
-							.createFromSource(mBitmapTextureAtlas,
-									fileBitmapTextureAtlasSource, 0, 150);
-					mBitmapTextureAtlas.load();
-				}
-				break;
-
-			default :
-
-		}
-	}
-	protected void doCropPhoto(Bitmap data) {
-		Intent intent = getCropImageIntent(data);
-		startActivityForResult(intent, PHOTO_PICKED_WITH_DATA);
-	}
-
-	public static Intent getCropImageIntent(Bitmap data) {
-		Intent intent = new Intent("com.android.camera.action.CROP");
-		intent.setType("image/*");
-		intent.putExtra("data", data);
-		intent.putExtra("crop", "true");
-		intent.putExtra("aspectX", 1);
-		intent.putExtra("aspectY", 1);
-		intent.putExtra("outputX", 180);
-		intent.putExtra("outputY", 180);
-		intent.putExtra("return-data", true);
-		return intent;
-	}
 }

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
     <string name="app_name">Choose For You</string>
+    <string name="reset">RESET</string>
+    <string name="start">G O !</string>
 </resources>

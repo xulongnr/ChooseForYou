@@ -16,10 +16,16 @@ import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
+
+import com.adview.AdViewLayout;
+import com.adview.AdViewTargeting;
+import com.adview.AdViewTargeting.RunMode;
+import com.adview.AdViewTargeting.UpdateMode;
 
 public class SetupChoicesActivity extends Activity {
 
@@ -36,6 +42,8 @@ public class SetupChoicesActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		final OnClickListener onClickFunc = new OnClickListener() {
 			@Override
@@ -118,7 +126,15 @@ public class SetupChoicesActivity extends Activity {
 				i = 2;
 		}
 
+		LinearLayout layout = (LinearLayout) findViewById(R.id.adLayout);
+		AdViewTargeting.setRunMode(RunMode.TEST);
+		AdViewTargeting.setUpdateMode(UpdateMode.EVERYTIME);
+		AdViewLayout adViewLayout = new AdViewLayout(this,
+				"SDK20122309480217x9sp4og4fxrj2ur");
+		layout.addView(adViewLayout);
+		layout.invalidate();
 	}
+
 	protected void onClickChoice(int index) {
 		pos = index;
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);

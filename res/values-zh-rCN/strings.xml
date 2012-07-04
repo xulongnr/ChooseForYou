@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
     <string name="app_name">帮你纠结</string>
+    <string name="reset">重置</string>
+    <string name="start">开始</string>
 </resources>
