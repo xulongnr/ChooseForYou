@@ -5,6 +5,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -13,6 +15,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
@@ -25,7 +28,6 @@ import android.widget.LinearLayout.LayoutParams;
 import com.adview.AdViewLayout;
 import com.adview.AdViewTargeting;
 import com.adview.AdViewTargeting.RunMode;
-import com.adview.AdViewTargeting.UpdateMode;
 
 public class SetupChoicesActivity extends Activity {
 
@@ -55,11 +57,28 @@ public class SetupChoicesActivity extends Activity {
 		};
 
 		findViewById(R.id.btn_title).setOnClickListener(onClickFunc);
-		findViewById(R.id.btn_go).setOnClickListener(onClickFunc);
+		findViewById(R.id.btn_start).setOnClickListener(onClickFunc);
 		findViewById(R.id.btn_reset).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				reset();
+				new AlertDialog.Builder(SetupChoicesActivity.this)
+						.setMessage(getString(R.string.reset_msg))
+						.setIcon(android.R.drawable.ic_dialog_info)
+						.setPositiveButton(getString(R.string.ok),
+								new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog,
+											int which) {
+										reset();
+									}
+								})
+						.setNegativeButton(getString(R.string.cancel),
+								new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog,
+											int whichButton) {
+									}
+								}).create().show();
 			}
 		});
 
@@ -105,13 +124,41 @@ public class SetupChoicesActivity extends Activity {
 			img[i].setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View arg0) {
-					onClickChoice(current);
+					String[] options = getResources().getStringArray(
+							R.array.options_array);
+					AlertDialog dialog = new AlertDialog.Builder(
+							SetupChoicesActivity.this)
+							// .setIcon(android.R.drawable.ic_dialog_info)
+							.setTitle(getString(R.string.option_setting))
+							.setItems(options, onselect).create();
+					dialog.show();
+
 				}
+
+				DialogInterface.OnClickListener onselect = new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						pos = current;
+						switch (which) {
+							case 0 :
+								onClickCamera();
+								break;
+							case 1 :
+								onClickGallery();
+								break;
+							case 2 :
+								onClickDefault();
+								break;
+						}
+					}
+
+				};
+
 			});
+
 			img[i].setOnLongClickListener(new OnLongClickListener() {
 				@Override
 				public boolean onLongClick(View v) {
-					onLongClickChoice(current);
 					return true;
 				}
 			});
@@ -127,26 +174,26 @@ public class SetupChoicesActivity extends Activity {
 		}
 
 		LinearLayout layout = (LinearLayout) findViewById(R.id.adLayout);
-		AdViewTargeting.setRunMode(RunMode.TEST);
-		AdViewTargeting.setUpdateMode(UpdateMode.EVERYTIME);
+		AdViewTargeting.setRunMode(RunMode.NORMAL);
 		AdViewLayout adViewLayout = new AdViewLayout(this,
-				"SDK20122309480217x9sp4og4fxrj2ur");
+				"SDK2012010501074409ed37r0uwufh04");
 		layout.addView(adViewLayout);
 		layout.invalidate();
 	}
-
-	protected void onClickChoice(int index) {
-		pos = index;
+	protected void onClickCamera() {
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 		startActivityForResult(intent, CAMERA_WITH_DATA);
 	}
 
-	protected void onLongClickChoice(int index) {
-		pos = index;
+	protected void onClickGallery() {
 		Intent intent = new Intent();
 		intent.setType("image/*");
 		intent.setAction(Intent.ACTION_GET_CONTENT);
 		startActivityForResult(intent, PICK_FROM_GALLERY);
+	}
+
+	protected void onClickDefault() {
+		reset_pic(pos);
 	}
 
 	@Override
@@ -258,18 +305,54 @@ public class SetupChoicesActivity extends Activity {
 
 	protected void reset() {
 		for (int i = 0; i < 4; i++) {
-			File file = new File(img_prefix + imgstr[i]);
-			if (file.exists())
-				file.delete();
-
-			Bitmap bitmap = null;
-			try {
-				bitmap = BitmapFactory
-						.decodeStream(getAssets().open(imgstr[i]));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			img[i].setImageBitmap(bitmap);
+			reset_pic(i);
 		}
+	}
+
+	protected void reset_pic(int i) {
+		File file = new File(img_prefix + imgstr[i]);
+		if (file.exists())
+			file.delete();
+
+		Bitmap bitmap = null;
+		try {
+			bitmap = BitmapFactory.decodeStream(getAssets().open(imgstr[i]));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		img[i].setImageBitmap(bitmap);
+	}
+
+	@Override
+	public boolean onKeyUp(int keycode, KeyEvent event) {
+		switch (keycode) {
+
+			case KeyEvent.KEYCODE_BACK :
+
+				new AlertDialog.Builder(this)
+						.setMessage(getString(R.string.exit_msg))
+						.setIcon(android.R.drawable.ic_dialog_info)
+						.setPositiveButton(getString(R.string.ok),
+								new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog,
+											int which) {
+										finish();
+									}
+								})
+						.setNegativeButton(getString(R.string.cancel),
+								new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog,
+											int whichButton) {
+									}
+								}).create().show();
+
+				return false;
+
+			default :
+		}
+
+		return super.onKeyUp(keycode, event);
 	}
 }

@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
+     <string-array name="options_array" translatable="false">
+         <item>@string/camera</item>
+         <item>@string/gallery</item>
+         <item>@string/defaultpic</item>
+     </string-array>
+
     <string name="app_name">Choose For You</string>
     <string name="reset">RESET</string>
-    <string name="start">G O !</string>
+    <string name="start">START</string>
+    <string name="option_setting">Setting option</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="defaultpic">Default</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="exit_msg">Are you sure to exit?</string>
+    <string name="reset_msg">Are you sure to reset?</string>
 </resources>

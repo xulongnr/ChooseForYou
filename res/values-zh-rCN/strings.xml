@@ -3,4 +3,12 @@
     <string name="app_name">帮你纠结</string>
     <string name="reset">重置</string>
     <string name="start">开始</string>
+    <string name="option_setting">设置选项</string>
+    <string name="camera">相机拍摄</string>
+    <string name="gallery">手机相册</string>
+    <string name="defaultpic">默认图片</string>
+    <string name="ok">确定</string>
+    <string name="cancel">取消</string>
+    <string name="exit_msg">确定退出？</string>
+    <string name="reset_msg">确定重置？</string>
 </resources>
