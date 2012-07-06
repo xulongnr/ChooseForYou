@@ -19,7 +19,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
@@ -44,8 +43,6 @@ public class SetupChoicesActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		final OnClickListener onClickFunc = new OnClickListener() {
 			@Override
@@ -56,9 +53,13 @@ public class SetupChoicesActivity extends Activity {
 			}
 		};
 
-		findViewById(R.id.btn_title).setOnClickListener(onClickFunc);
-		findViewById(R.id.btn_start).setOnClickListener(onClickFunc);
-		findViewById(R.id.btn_reset).setOnClickListener(new OnClickListener() {
+		View btn_title = findViewById(R.id.btn_title);
+		View btn_start = findViewById(R.id.btn_start);
+		View btn_reset = findViewById(R.id.btn_reset);
+
+		btn_title.setOnClickListener(onClickFunc);
+		btn_start.setOnClickListener(onClickFunc);
+		btn_reset.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				new AlertDialog.Builder(SetupChoicesActivity.this)
@@ -96,7 +97,7 @@ public class SetupChoicesActivity extends Activity {
 				i = (i == 2 ? 3 : 2);
 			}
 
-			int margin = 4;
+			int margin = 10;
 			final int current = i;
 			img[i] = new ImageView(this);
 			LayoutParams params = new LayoutParams(width / 2 - margin, width
