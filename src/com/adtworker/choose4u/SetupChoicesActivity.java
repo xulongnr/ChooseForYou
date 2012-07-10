@@ -100,8 +100,8 @@ public class SetupChoicesActivity extends Activity {
 			int margin = 10;
 			final int current = i;
 			img[i] = new ImageView(this);
-			LayoutParams params = new LayoutParams(width / 2 - margin, width
-					/ 2 - margin);
+			LayoutParams params = new LayoutParams(width / 2 - 2 * margin,
+					width / 2 - 2 * margin);
 			params.setMargins(margin, margin, margin, margin);
 			img[i].setLayoutParams(params);
 			img[i].setScaleType(ScaleType.FIT_CENTER);
