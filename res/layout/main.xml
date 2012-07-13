@@ -22,6 +22,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:visibility="gone"
         android:textSize="25dp"
         android:text="@string/app_name"/>
 
@@ -46,6 +47,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textSize="25dp"
+            android:visibility="gone"
             android:layout_weight="1"
             android:text="@string/reset"/>
 
@@ -53,6 +55,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:visibility="gone"
             android:textSize="25dp"
             android:layout_weight="1"
             android:text="@string/start"/>
@@ -61,7 +64,6 @@
 
 </LinearLayout>
 
-<!--
 <LinearLayout
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
@@ -70,11 +72,11 @@
 
 	<RelativeLayout
 	    android:layout_width="fill_parent"
-	    android:layout_height="56dip"
+	    android:layout_height="60dip"
 	    android:background="@drawable/image_titlebar_background" >
-        
+
 		<TextView android:id="@+id/txtTitleBarTitle"
-			android:textSize="16.0sp"
+			android:textSize="20.0sp"
 			android:textColor="#ffffff"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -82,10 +84,32 @@
 			android:text="@string/app_name"
 			android:layout_centerHorizontal="true" />
 		
+		<Button android:id="@+id/btn_reset_tb"
+		    android:textSize="16.0sp" android:textStyle="bold"
+		    android:background="@drawable/titlebar_function_button"
+		    android:paddingLeft="15.0dip" android:paddingRight="15.0dip"
+		    android:visibility="visible"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_marginLeft="6.0dip"
+		    android:layout_marginTop="7.0dip"
+		    android:text="@string/reset"
+		    android:layout_alignParentLeft="true" />
+		
+		<Button android:id="@+id/btn_start_tb"
+		    android:textSize="16.0sp" android:textStyle="bold"
+		    android:background="@drawable/titlebar_function_button"
+		    android:paddingLeft="15.0dip" android:paddingRight="15.0dip"
+		    android:visibility="visible"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_marginTop="7.0dip" android:layout_marginRight="6.0dip"
+		    android:text="@string/start"
+		    android:layout_alignParentRight="true" />
+		
 	</RelativeLayout>
 
 </LinearLayout>
--->
 
 <LinearLayout
     android:layout_width="fill_parent"

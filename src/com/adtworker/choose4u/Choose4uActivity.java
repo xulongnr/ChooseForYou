@@ -82,8 +82,10 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 	public EngineOptions onCreateEngineOptions() {
 		mCamera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 
-		return new EngineOptions(true, ScreenOrientation.PORTRAIT_SENSOR,
-				new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), mCamera);
+		final EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.PORTRAIT_SENSOR, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), this.mCamera);
+		engineOptions.getTouchOptions().setNeedsMultiTouch(true);
+		
+		return engineOptions;
 	}
 	@Override
 	public void onCreateResources() {
@@ -185,12 +187,12 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 
 		addChoice(rectangleGroup, 0, -mRectWidth, -mRectWidth);
 		addChoice(rectangleGroup, 1, 0, -mRectWidth);
-
 		addChoice(rectangleGroup, 2, 0, 0);
 		addChoice(rectangleGroup, 3, -mRectWidth, 0);
 
 		mRotateScene.attachChild(rectangleGroup);
-
+		mRotateScene.setOnAreaTouchTraversalFrontToBack();
+		
 		// centerX
 		// (float) (centerY + mRectWidth * Math.sqrt(2))
 		float width = mRectWidth - mButtonTextureRegion.getWidth() * 3 / 2;
@@ -227,12 +229,11 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 		};
 
 		circleGroup.attachChild(buttonSprite);
-		this.mRotateScene.attachChild(circleGroup);
-		this.mRotateScene.registerTouchArea(buttonSprite);
-		this.mRotateScene.setTouchAreaBindingOnActionDownEnabled(true);
+		mRotateScene.attachChild(circleGroup);
+		mRotateScene.registerTouchArea(buttonSprite);
+		mRotateScene.setTouchAreaBindingOnActionDownEnabled(true);
 
 		mScene.setChildScene(mRotateScene);
-		// mScene.setTouchAreaBindingOnActionDownEnabled(true);
 
 		return mScene;
 	}
@@ -277,28 +278,39 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 		final Sprite sprite = new Sprite(x, y, mRectWidth, mRectWidth,
 				this.mRectagleTextureRegion[i],
 				this.getVertexBufferObjectManager()) {
+			
+			boolean mGrabbed = false;
 
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent,
 					final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				Log.d(TAG, "onTouched: x=" + pTouchAreaLocalX + ", y="
-						+ pTouchAreaLocalY);
-
-				switch (pSceneTouchEvent.getAction()) {
-					case TouchEvent.ACTION_DOWN :
-
+				
+				switch(pSceneTouchEvent.getAction()) {
+					case TouchEvent.ACTION_DOWN:
+						this.mGrabbed = true;
 						break;
-
-					default :
-
+					case TouchEvent.ACTION_MOVE:
+						if(this.mGrabbed) {
+							this.setPosition(pSceneTouchEvent.getX() - this.getWidth()/ 2 - CAMERA_WIDTH/2,
+									pSceneTouchEvent.getY() - this.getWidth() / 2 - CAMERA_HEIGHT/2);
+						}
+						break;
+					case TouchEvent.ACTION_UP:
+						if(this.mGrabbed) {
+							this.mGrabbed = false;
+							
+							Log.d(TAG, "x="+pSceneTouchEvent.getX()+", y="+pSceneTouchEvent.getY());
+							Log.d(TAG, "lx="+pTouchAreaLocalX+", ly="+pTouchAreaLocalY);
+						}
 						break;
 				}
+				
 				return true;
 			}
 		};
+		
 		parent.attachChild(sprite);
-		// mRotateScene.registerTouchArea(sprite);
-
+		mRotateScene.registerTouchArea(sprite);
 	}
 
 }
