@@ -185,13 +185,14 @@ public class Choose4uActivity extends SimpleBaseGameActivity {
 		mRectWidth = Math.min(CAMERA_WIDTH, CAMERA_HEIGHT) / 2;
 		// / Math.sqrt(2)
 
+		mRotateScene.setOnAreaTouchTraversalFrontToBack();
+
 		addChoice(rectangleGroup, 0, -mRectWidth, -mRectWidth);
 		addChoice(rectangleGroup, 1, 0, -mRectWidth);
 		addChoice(rectangleGroup, 2, 0, 0);
 		addChoice(rectangleGroup, 3, -mRectWidth, 0);
 
 		mRotateScene.attachChild(rectangleGroup);
-		mRotateScene.setOnAreaTouchTraversalFrontToBack();
 		
 		// centerX
 		// (float) (centerY + mRectWidth * Math.sqrt(2))

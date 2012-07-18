@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import cn.domob.android.ads.DomobAdView;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -25,10 +27,6 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
-
-import com.adview.AdViewLayout;
-import com.adview.AdViewTargeting;
-import com.adview.AdViewTargeting.RunMode;
 
 public class SetupChoicesActivity extends Activity {
 
@@ -183,10 +181,9 @@ public class SetupChoicesActivity extends Activity {
 		}
 
 		LinearLayout layout = (LinearLayout) findViewById(R.id.adLayout);
-		AdViewTargeting.setRunMode(RunMode.NORMAL);
-		AdViewLayout adViewLayout = new AdViewLayout(this,
-				"SDK2012010501074409ed37r0uwufh04");
-		layout.addView(adViewLayout);
+		DomobAdView mAdview = new DomobAdView(this, "56OJyNhYuMt0S8js8X", DomobAdView.INLINE_SIZE_320X50);
+		mAdview.setKeyword("life luck choice");
+		layout.addView(mAdview);
 		layout.invalidate();
 	}
 	protected void onClickCamera() {
