@@ -11,9 +11,11 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 /**
@@ -25,8 +27,6 @@ public class SnakeView extends TileView
 {
 
     private static final String TAG = "SnakeView";
-    private int mScreenWidth;
-    private int mScreenHeight;
 
     /**
      * Current mode of application: READY to run, RUNNING, or you have already
@@ -159,10 +159,6 @@ public class SnakeView extends TileView
 
         mMoveDelay = 300;
         mScore = 0;
-
-        DisplayMetrics dm = getResources().getDisplayMetrics();
-        mScreenWidth = dm.widthPixels;
-        mScreenHeight = dm.heightPixels;
     }
 
 
@@ -566,21 +562,33 @@ public class SnakeView extends TileView
             return true;
         }
 
+        float x = ev.getRawX();
+        float y = ev.getRawY();
+        Log.d(TAG, "(x, y)=" + x + ", " + y + " - " + Constants.getScreenWidth()
+        		+ ", " + Constants.getScreenHeight());
+
         if (mDirection == SOUTH || mDirection == NORTH) {
-        	 if (ev.getX() < mScreenWidth / 2) {
-        	    	// Left
-        		 	mNextDirection = WEST;
-        	    } else {
-        	    	mNextDirection = EAST;
-        	    }
+        	if (x < Constants.getScreenWidth() / 2) {
+        		// Left
+        		Log.v(TAG, "heading west");
+        		mNextDirection = WEST;
+        	} else {
+        		Log.v(TAG, "heading west");
+        		mNextDirection = EAST;
+        	}
+        	return true;
+
         } else if (mDirection == EAST || mDirection == WEST) {
-        	if (ev.getY() < mScreenHeight / 2) {
+        	if (y < Constants.getScreenHeight() / 2) {
             	// UP
+        		Log.v(TAG, "heading north");
         		mNextDirection = NORTH;
             } else {
             	// Down
+            	Log.v(TAG, "heading south");
             	mNextDirection = SOUTH;
             }
+        	return true;
         }
 
     	return super.onTouchEvent(ev);

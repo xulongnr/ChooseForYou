@@ -16,15 +16,22 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.adtworker.snake">
+
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+
     <application android:label="SnakeGame">
-      <activity android:name="Snake"
-        android:theme="@android:style/Theme.NoTitleBar"
-        android:screenOrientation="portrait"
-        android:configChanges="keyboardHidden|orientation">
+        <activity android:name=".SnakeGameActivity"
+                  android:configChanges="orientation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity android:name="Snake"
+                  android:theme="@android:style/Theme.NoTitleBar"
+                  android:screenOrientation="portrait"
+                  android:configChanges="keyboardHidden|orientation">
         </activity>
     </application>
 </manifest> 

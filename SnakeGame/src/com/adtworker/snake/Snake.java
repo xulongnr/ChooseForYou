@@ -29,6 +29,7 @@ public class Snake extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Constants.setDisplay(getWindowManager());
         setContentView(R.layout.snake_layout);
 
         mSnakeView = (SnakeView) findViewById(R.id.snake);
