@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import cn.domob.android.ads.DomobAdView;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -16,6 +14,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
@@ -37,7 +36,10 @@ public class SetupChoicesActivity extends Activity {
 	private static final int PICK_FROM_GALLERY = 3024;
 
 	private int pos = 0;
+	private int mAdSponsorId = 0; // 0 for domob, 1 for admob, 2 for suizong
 	private ImageView[] img = new ImageView[4];
+	private final static Handler mHandler = new Handler();
+	private final static int mAdRefreshDelay = 30000;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -77,14 +79,14 @@ public class SetupChoicesActivity extends Activity {
 			}
 		};
 
-		Button btn_start = (Button)findViewById(R.id.btn_start_tb);
-		Button btn_reset = (Button)findViewById(R.id.btn_reset_tb);
-		
+		Button btn_start = (Button) findViewById(R.id.btn_start_tb);
+		Button btn_reset = (Button) findViewById(R.id.btn_reset_tb);
+
 		findViewById(R.id.btn_title).setOnClickListener(onClickStartFunc);
 		findViewById(R.id.btn_start).setOnClickListener(onClickStartFunc);
 		btn_start.setOnClickListener(onClickStartFunc);
 		btn_start.setTextColor(Color.WHITE);
-		
+
 		findViewById(R.id.btn_reset).setOnClickListener(onClickResetFunc);
 		btn_reset.setOnClickListener(onClickResetFunc);
 		btn_reset.setTextColor(Color.WHITE);
@@ -139,7 +141,6 @@ public class SetupChoicesActivity extends Activity {
 							.setTitle(getString(R.string.option_setting))
 							.setItems(options, onselect).create();
 					dialog.show();
-
 				}
 
 				DialogInterface.OnClickListener onselect = new DialogInterface.OnClickListener() {
@@ -180,12 +181,37 @@ public class SetupChoicesActivity extends Activity {
 				i = 2;
 		}
 
-		LinearLayout layout = (LinearLayout) findViewById(R.id.adLayout);
-		DomobAdView mAdview = new DomobAdView(this, "56OJyNhYuMt0S8js8X", DomobAdView.INLINE_SIZE_320X50);
-		mAdview.setKeyword("life luck choice");
-		layout.addView(mAdview);
-		layout.invalidate();
+		mHandler.post(mAdRefreshProc);
 	}
+
+	protected Runnable mAdRefreshProc = new Runnable() {
+		@Override
+		public void run() {
+			LinearLayout layout = (LinearLayout) findViewById(R.id.adLayout);
+			layout.removeAllViews();
+			Activity context = SetupChoicesActivity.this;
+			switch (mAdSponsorId) {
+				case 0 :
+					AdUtils.setupDomobAdView(context, layout);
+					break;
+
+				case 1 :
+					AdUtils.setupAdmobAdView(context, layout);
+					break;
+
+				case 2 :
+					AdUtils.setupSuizongAdView(context, layout);
+					break;
+
+				default :
+					AdUtils.setupDomobAdView(context, layout);
+			}
+			layout.invalidate();
+			mAdSponsorId = ++mAdSponsorId % 3;
+			mHandler.postDelayed(mAdRefreshProc, mAdRefreshDelay);
+		}
+	};
+
 	protected void onClickCamera() {
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 		startActivityForResult(intent, CAMERA_WITH_DATA);
