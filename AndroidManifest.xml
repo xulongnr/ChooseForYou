@@ -47,10 +47,19 @@
             </intent-filter>
         </activity>
 
-	<!-- AdView SDK for Domob --> 
+	<!-- for Domob --> 
 	<activity android:name="cn.domob.android.ads.DomobActivity"
 		android:theme =  "@android:style/Theme.Translucent" />
 
+	
+	<!--  For Suizong -->
+	<activity android:name="com.suizong.mobplate.ads.AdActivity" 
+	              android:configChanges="keyboard|keyboardHidden|orientation"/>
+	
+	<!--  For Admob -->
+	<activity android:name="com.google.ads.AdActivity"
+              android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"/>
+	
 	</application>
 	
 </manifest>
